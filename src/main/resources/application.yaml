@@ -1,0 +1,17 @@
+server:
+  port: ${CUSTOMER_SERVICE_PORT:8091}
+
+spring:
+  application:
+    name: x-customer-service
+  profiles:
+    default: local
+
+x:
+  http:
+    logging:
+      enabled: true
+      server: x-customer-service
+      hop: "x-api-gateway → x-bff → x-customer-service"
+      hops:
+        /api/v1/customers: "x-api-gateway → x-bff → x-customer-service"
