@@ -91,8 +91,33 @@ jobs:
               --requests=cpu=50m,memory=128Mi \
               --limits=cpu=500m,memory=512Mi
 
+            sudo k3s kubectl -n x-platform patch deployment/x-customer-service \
+              --type=strategic \
+              --patch='
+                spec:
+                  template:
+                    spec:
+                      containers:
+                        - name: x-customer-service
+                          startupProbe:
+                            tcpSocket:
+                              port: 8080
+                            periodSeconds: 5
+                            failureThreshold: 60
+                          readinessProbe:
+                            tcpSocket:
+                              port: 8080
+                            periodSeconds: 5
+                            failureThreshold: 3
+                          livenessProbe:
+                            tcpSocket:
+                              port: 8080
+                            periodSeconds: 10
+                            failureThreshold: 3
+              '
+
             sudo k3s kubectl -n x-platform rollout status \
-              deployment/x-customer-service --timeout=180s
+              deployment/x-customer-service --timeout=300s
 
             sudo k3s kubectl -n x-platform set env deployment/x-bff \
               SERVICES_CUSTOMER_BASE_URL=http://x-customer-service:8080
