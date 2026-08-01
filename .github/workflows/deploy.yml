@@ -61,8 +61,6 @@ jobs:
           /user/packages/container/x-customer-service/visibility
           -f visibility=public
 
-      - name: Deploy to k3s
-
   deploy:
     needs: build
     runs-on: [self-hosted, linux, x64, x-platform-deploy]
