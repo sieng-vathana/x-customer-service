@@ -12,6 +12,7 @@ import java.util.List;
 
 public record CustomerRequest(
         @NotNull @Positive Long businessId,
+        @Positive Long storeId,
         @Size(max = 40) String customerCode,
         @NotBlank @Size(max = 160) String fullName,
         @Size(max = 40) String phone,

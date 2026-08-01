@@ -27,6 +27,10 @@ public class Customer {
     @Column(name = "business_id", nullable = false)
     private Long businessId;
 
+    /** Optional originating/default store. Customers remain visible across their business. */
+    @Column(name = "store_id")
+    private Long storeId;
+
     @Column(name = "customer_code", nullable = false, length = 40)
     private String customerCode;
 

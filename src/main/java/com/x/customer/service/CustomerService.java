@@ -31,7 +31,8 @@ public class CustomerService {
         }
         ensureCodeAvailable(request.businessId(), code);
         Customer customer = Customer.builder()
-                .businessId(request.businessId()).customerCode(code).fullName(request.fullName().trim())
+                .businessId(request.businessId()).storeId(request.storeId())
+                .customerCode(code).fullName(request.fullName().trim())
                 .phone(trim(request.phone())).email(trim(request.email())).gender(trim(request.gender()))
                 .dateOfBirth(request.dateOfBirth()).note(trim(request.note())).status(1).build();
         customer.replaceAddresses(toAddresses(request.addresses()));
@@ -63,6 +64,7 @@ public class CustomerService {
             customer.setCustomerCode(code);
         }
         customer.setFullName(request.fullName().trim());
+        customer.setStoreId(request.storeId());
         customer.setPhone(trim(request.phone()));
         customer.setEmail(trim(request.email()));
         customer.setGender(trim(request.gender()));
