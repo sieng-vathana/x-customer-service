@@ -34,6 +34,14 @@ jobs:
       - name: Install shared library
         run: mvn --batch-mode --no-transfer-progress -DskipTests install -f x-sharedlib/pom.xml
 
+      - uses: actions/checkout@v4
+        with:
+          repository: sieng-vathana/x-redis
+          path: x-redis
+
+      - name: Install Redis library
+        run: mvn --batch-mode --no-transfer-progress -DskipTests install -f x-redis/pom.xml
+
       - name: Build customer service
         run: mvn --batch-mode --no-transfer-progress verify
 
