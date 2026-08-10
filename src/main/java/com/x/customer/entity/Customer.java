@@ -12,7 +12,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "customers", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_customer_business_code", columnNames = {"business_id", "customer_code"})
+        @UniqueConstraint(name = "uk_customer_business_code", columnNames = {"business_id", "customer_code"}),
+        @UniqueConstraint(name = "uk_customer_business_user", columnNames = {"business_id", "user_id"})
 })
 @Getter
 @Setter
@@ -23,6 +24,10 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /** Links an e-commerce account to the business customer record. */
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column(name = "business_id", nullable = false)
     private Long businessId;
