@@ -21,6 +21,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
+    public static final long WALK_IN_CUSTOMER_ID = 0L;
+    private static final String WALK_IN_CUSTOMER_CODE = "WALK-IN";
+
     private final CustomerRepository customerRepository;
 
     @Transactional
@@ -42,7 +45,7 @@ public class CustomerService {
 
     @Transactional(readOnly = true)
     public Page<CustomerResponse> list(Long businessId, int page, int size) {
-        return customerRepository.findByBusinessIdAndStatus(
+        return customerRepository.findByBusinessIdAndStatusIncludingWalkIn(
                         businessId, 1, PageRequest.of(page, size, Sort.by("createdAt").descending()))
                 .map(CustomerResponse::from);
     }
@@ -54,6 +57,7 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponse update(Long businessId, Long id, CustomerRequest request) {
+        rejectWalkInMutation(id);
         if (!businessId.equals(request.businessId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "businessId cannot be changed");
         }
@@ -79,17 +83,27 @@ public class CustomerService {
 
     @Transactional
     public void deactivate(Long businessId, Long id) {
+        rejectWalkInMutation(id);
         Customer customer = findOwned(businessId, id);
         customer.setStatus(0);
         customerRepository.save(customer);
     }
 
     private Customer findOwned(Long businessId, Long id) {
-        return customerRepository.findByIdAndBusinessId(id, businessId)
+        return customerRepository.findByIdAndBusinessIdIncludingWalkIn(id, businessId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
     }
 
+    private void rejectWalkInMutation(Long id) {
+        if (WALK_IN_CUSTOMER_ID == id) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Walk-in customer cannot be modified");
+        }
+    }
+
     private void ensureCodeAvailable(Long businessId, String code) {
+        if (WALK_IN_CUSTOMER_CODE.equals(code)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "WALK-IN is reserved for the system customer");
+        }
         if (customerRepository.existsByBusinessIdAndCustomerCode(businessId, code)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Customer code already exists");
         }

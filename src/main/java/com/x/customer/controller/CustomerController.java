@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,13 +42,13 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CustomerResponse>> get(
-            @RequestParam @Positive Long businessId, @PathVariable @Positive Long id) {
+            @RequestParam @Positive Long businessId, @PathVariable @PositiveOrZero Long id) {
         return ResponseEntity.ok(ApiResponse.success(200, customerService.get(businessId, id)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CustomerResponse>> update(
-            @RequestParam @Positive Long businessId, @PathVariable @Positive Long id,
+            @RequestParam @Positive Long businessId, @PathVariable @PositiveOrZero Long id,
             @Valid @RequestBody CustomerRequest request) {
         return ResponseEntity.ok(ApiResponse.success(200, "Customer updated",
                 customerService.update(businessId, id, request)));
@@ -55,7 +56,7 @@ public class CustomerController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deactivate(
-            @RequestParam @Positive Long businessId, @PathVariable @Positive Long id) {
+            @RequestParam @Positive Long businessId, @PathVariable @PositiveOrZero Long id) {
         customerService.deactivate(businessId, id);
         return ResponseEntity.ok(ApiResponse.success(200, "Customer deactivated", null));
     }
