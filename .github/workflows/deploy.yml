@@ -73,6 +73,15 @@ jobs:
     needs: build
     runs-on: [self-hosted, linux, x64, x-platform-deploy]
     steps:
+      - name: Create short lived GHCR pull secret
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PULL_SECRET=ghcr-pull-x-customer-service
+          AUTH=$(printf '%s:%s' "$GITHUB_ACTOR" "$GHCR_TOKEN" | base64 -w0)
+          DOCKER_CONFIG=$(printf '{"auths":{"ghcr.io":{"auth":"%s"}}}' "$AUTH" | base64 -w0)
+          printf '%s' "$DOCKER_CONFIG" | base64 -d | sudo k3s kubectl -n x-platform create secret generic "$PULL_SECRET" --type=kubernetes.io/dockerconfigjson --from-file=.dockerconfigjson=/dev/stdin --dry-run=client -o yaml | sudo k3s kubectl apply -f -
+
       - name: Roll out image
         run: |
           set -eu
@@ -125,6 +134,7 @@ jobs:
                           failureThreshold: 3
             '
 
+          sudo k3s kubectl -n x-platform patch deployment x-customer-service --type=strategic -p='{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"ghcr-pull-x-customer-service"}]}}}}'
           sudo k3s kubectl -n x-platform rollout status \
             deployment/x-customer-service --timeout=300s
 
@@ -141,6 +151,12 @@ jobs:
             --command -- curl --fail --silent --show-error --max-time 15 \
             "http://x-customer-service:8080/api/v1/customers?businessId=1&page=0&size=1" \
             >/dev/null
+      - name: Remove temporary GHCR pull secret
+        if: success()
+        run: |
+          sudo k3s kubectl -n x-platform patch deployment x-customer-service --type=json -p='[{"op":"remove","path":"/spec/template/spec/imagePullSecrets"}]'
+          sudo k3s kubectl -n x-platform rollout status deployment/x-customer-service --timeout=180s
+          sudo k3s kubectl -n x-platform delete secret ghcr-pull-x-customer-service --ignore-not-found=true
 
   notify:
     if: always()
