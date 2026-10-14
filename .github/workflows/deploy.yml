@@ -142,11 +142,6 @@ jobs:
           sudo k3s kubectl -n x-platform rollout status \
             deployment/x-customer-service --timeout=300s
 
-          sudo k3s kubectl -n x-platform set env deployment/x-bff \
-            SERVICES_CUSTOMER_BASE_URL=http://x-customer-service:8080
-          sudo k3s kubectl -n x-platform rollout status \
-            deployment/x-bff --timeout=180s
-
           SMOKE_POD="x-customer-smoke-${{ github.run_id }}"
           sudo k3s kubectl -n x-platform run "$SMOKE_POD" \
             --image=curlimages/curl:8.10.1 \
