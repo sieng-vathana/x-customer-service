@@ -9,7 +9,7 @@ import java.util.List;
 public record CustomerResponse(
         Long id, Long userId, Long businessId, Long storeId, String customerCode, String fullName, String phone,
         String email, String gender, LocalDate dateOfBirth, String note, Integer status,
-        List<CustomerAddressResponse> addresses, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        List<CustomerAddressResponse> addresses, LocalDateTime createdAt, LocalDateTime updatedAt, long loyaltyPoints) {
     public static CustomerResponse from(Customer customer) {
         List<CustomerAddressResponse> addresses = customer.getAddresses() == null
                 ? List.of()
@@ -17,6 +17,7 @@ public record CustomerResponse(
         return new CustomerResponse(
                 customer.getId(), customer.getUserId(), customer.getBusinessId(), customer.getStoreId(), customer.getCustomerCode(), customer.getFullName(),
                 customer.getPhone(), customer.getEmail(), customer.getGender(), customer.getDateOfBirth(),
-                customer.getNote(), customer.getStatus(), addresses, customer.getCreatedAt(), customer.getUpdatedAt());
+                customer.getNote(), customer.getStatus(), addresses, customer.getCreatedAt(), customer.getUpdatedAt(),
+                customer.getLoyaltyPoints() == null ? 0 : customer.getLoyaltyPoints());
     }
 }

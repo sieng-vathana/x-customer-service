@@ -45,6 +45,15 @@ public class Customer {
     @Column(length = 40)
     private String phone;
 
+    /** Digits only, Cambodian numbers with a leading 0, so a phone can be looked up however it was typed. */
+    @Column(name = "phone_normalized", length = 40)
+    private String phoneNormalized;
+
+    /** Loyalty points the customer can redeem; changed only through loyalty transactions. */
+    @Builder.Default
+    @Column(name = "loyalty_points", nullable = false, columnDefinition = "bigint not null default 0")
+    private Long loyaltyPoints = 0L;
+
     @Column(length = 160)
     private String email;
 
@@ -71,6 +80,12 @@ public class Customer {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    @PreUpdate
+    void normalizePhone() {
+        phoneNormalized = PhoneNumbers.normalize(phone);
+    }
 
     public void replaceAddresses(List<CustomerAddress> replacement) {
         addresses.clear();
