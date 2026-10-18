@@ -41,6 +41,12 @@ public class MarketplaceCustomerService {
         return MarketplaceCustomerResponse.from(customerRepository.save(customer));
     }
 
+    @CacheEvict(cacheNames = CacheNames.MARKETPLACE_USER_SUMMARY, key = "#userId")
+    @Transactional
+    public void deleteFailedRegistration(Long userId, Long businessId) {
+        customerRepository.findByUserIdAndBusinessId(userId, businessId).ifPresent(customerRepository::delete);
+    }
+
     private String trim(String value) {
         return value == null || value.isBlank() ? null : value.trim();
     }

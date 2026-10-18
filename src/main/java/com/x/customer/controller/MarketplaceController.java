@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,5 +35,14 @@ public class MarketplaceController {
     public ResponseEntity<ApiResponse<MarketplaceCustomerResponse>> upsertCustomer(
             @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody MarketplaceCustomerRequest request) {
         return ResponseEntity.ok(ApiResponse.success(200, customerService.upsert(request)));
+    }
+
+    /** Used only to compensate a failed workspace registration. */
+    @DeleteMapping("/customer")
+    public ResponseEntity<Void> deleteFailedRegistration(
+            @RequestParam @Positive Long userId,
+            @RequestParam @Positive Long businessId) {
+        customerService.deleteFailedRegistration(userId, businessId);
+        return ResponseEntity.noContent().build();
     }
 }
