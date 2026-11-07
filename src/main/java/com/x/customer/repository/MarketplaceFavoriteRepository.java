@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MarketplaceFavoriteRepository extends JpaRepository<MarketplaceFavorite, Long> {
     List<MarketplaceFavorite> findAllByUserIdOrderByCreatedAtDesc(Long userId);
+    boolean existsByUserIdAndProductId(Long userId, Long productId);
+    void deleteByUserIdAndProductId(Long userId, Long productId);
 }
